@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>PhysicsPro | Физика курсы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* Аутентификация модалы */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 32px 24px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 2px solid #facc15;
+        }
+
+        .auth-card h2 {
+            color: #0284c7;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border: 2px solid #fde047;
+            border-radius: 40px;
+            font-size: 16px;
+            background: #fefce8;
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 16px;
+            background: #facc15;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #1e3a5f;
+            cursor: pointer;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 16px;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .auth-switch span {
+            color: #0284c7;
+            font-weight: bold;
+        }
+
+        #authMsg {
+            margin-top: 12px;
+            color: #dc2626;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        /* Негізгі қолданба */
+        .main-app {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border-radius: 32px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(2,132,199,0.3);
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info span {
+            color: white;
+        }
+
+        .logout-btn {
+            background: #facc15;
+            padding: 6px 16px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            color: #1e3a5f;
+            cursor: pointer;
+        }
+
+        /* Прогресс картасы */
+        .progress-card {
+            background: white;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #facc15;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 30px;
+            height: 12px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #0284c7, #facc15);
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        /* Модульдер аккордеоны */
+        .modules-accordion {
+            background: white;
+            border-radius: 28px;
+            padding: 8px;
+            margin-bottom: 16px;
+        }
+
+        .mod-header {
+            background: #fef9c3;
+            border-radius: 24px;
+            padding: 14px 18px;
+            margin: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            border: 1px solid #fde047;
+        }
+
+        .mod-header.active {
+            background: #fde047;
+        }
+
+        .mod-name {
+            font-weight: bold;
+            color: #1e3a5f;
+        }
+
+        .mod-progress {
+            background: #0284c7;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 12px;
+        }
+
+        .mod-content {
+            display: none;
+            padding: 12px 6px;
+            background: #f8fafc;
+            border-radius: 20px;
+            margin-top: 4px;
+        }
+
+        .mod-content.show {
+            display: block;
+        }
+
+        /* Тақырыптар */
+        .topic-item {
+            background: white;
+            border-radius: 20px;
+            margin: 12px 0;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .topic-title {
+            font-weight: bold;
+            color: #0c4a6e;
+            font-size: 1rem;
+        }
+
+        .complete-check {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #facc15;
+        }
+
+        .topic-detail {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #fde047;
+        }
+
+        .topic-detail.open {
+            display: block;
+        }
+
+        .theory-text {
+            background: #e0f2fe;
+            padding: 14px;
+            border-radius: 20px;
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 0.9rem;
+            color: #0c4a6e;
+        }
+
+        .formula-bubble {
+            background: #fef9c3;
+            padding: 12px;
+            border-radius: 20px;
+            margin: 8px 0;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: monospace;
+            overflow-x: auto;
+            border-left: 5px solid #0284c7;
+        }
+
+        .task-card {
+            background: #fef9c3;
+            padding: 12px;
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        .task-input {
+            padding: 10px;
+            border-radius: 40px;
+            border: 1px solid #facc15;
+            width: 60%;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .task-btn {
+            background: #0284c7;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .task-feedback {
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        /* Формулалар галереясы */
+        .formulas-gallery {
+            background: white;
+            border-radius: 28px;
+            padding: 16px;
+            margin-top: 20px;
+            border: 1px solid #fde047;
+        }
+
+        .formulas-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .formula-mini {
+            background: #e0f2fe;
+            padding: 10px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            text-align: center;
+            font-family: monospace;
+            font-weight: 500;
+            border-left: 4px solid #facc15;
+        }
+
+        /* Калькулятор */
+        .calc-card {
+            background: white;
+            border-radius: 28px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid #fde047;
+        }
+
+        .calc-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            border: 1px solid #facc15;
+            font-size: 16px;
+            background: #fefce8;
+        }
+
+        .calc-btn {
+            background: #facc15;
+            width: 100%;
+            padding: 10px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #475569;
+            font-size: 11px;
+        }
+        
+        .formula-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Аутентификация модалы -->
+<div id="authModal" class="auth-modal">
+    <div class="auth-card">
+        <h2 id="authTitle">🔐 Кіру</h2>
+        <input type="text" id="authUsername" placeholder="Пайдаланушы аты">
+        <input type="password" id="authPassword" placeholder="Құпия сөз">
+        <button id="authSubmitBtn">Кіру</button>
+        <div class="auth-switch" id="switchToRegister">Аккаунтыңыз жоқ па? <span>Тіркелу</span></div>
+        <div id="authMsg"></div>
+    </div>
+</div>
+
+<!-- Негізгі қолданба -->
+<div class="main-app" id="mainApp">
+    <div class="header">
+        <div class="logo"><h1>⚛️ PhysicsPro</h1></div>
+        <div class="user-info">
+            <span>👤 <span id="currentUser"></span></span>
+            <button class="logout-btn" id="logoutBtn">Шығу</button>
+        </div>
+    </div>
+
+    <div class="progress-card">
+        <p>📊 Жалпы прогресс</p>
+        <div class="progress-bar"><div class="progress-fill" id="globalFill"></div></div>
+        <span id="globalPercent">0%</span>
+    </div>
+
+    <div class="modules-accordion" id="modulesAccordion"></div>
+
+    <div class="formulas-gallery">
+        <h3 style="color:#0284c7;">📖 Барлық формулалар</h3>
+        <div class="formulas-grid" id="allFormulasGrid"></div>
+    </div>
+
+    <div class="calc-card">
+        <p>🧮 Калькулятор</p>
+        <input type="text" id="calcInput" class="calc-input" placeholder="мысалы: 25*4+3">
+        <button class="calc-btn" id="calcBtn">Есептеу =</button>
+        <div id="calcResult" style="margin-top:8px; font-weight:bold;"></div>
+    </div>
+
+    <footer>Физика курсы 7-11 сынып • Әр тақырыпта теория, формулалар, тапсырмалар</footer>
+</div>
+
+<script>
+// ===================== МОДУЛЬДЕР (ФОРМУЛАЛАР ҚАРАПАЙЫМ ТЕКСТ ТҮРІНДЕ) =====================
+const modulesData = {
+    "Механика": {
+        topics: [
+            {
+                name: "Кинематика",
+                theory: "Кинематика – қозғалысты себебін қарастырмай, тек геометриялық сипаттайды. Материялық нүкте – өлшемдерін елемеуге болатын дене.\n\nЖылдамдық: v = S/t (м/с). Үдеу: a = (v - v₀)/t (м/с²).\n\nБірқалыпты үдемелі қозғалыс: v = v₀ + at, S = v₀t + at²/2, v² - v₀² = 2aS.",
+                formulas: ["v = S / t", "a = (v - v₀) / t", "S = v₀·t + (a·t²)/2", "v² - v₀² = 2·a·S"],
+                tasks: [{ q: "Автомобиль 20 м/с жылдамдықпен 5 секунд жүрсе, қанша метр жүреді?", ans: 100 }]
+            },
+            {
+                name: "Ньютон заңдары",
+                theory: "1-заң (инерция): денеге күш әсер етпесе, ол тыныштық немесе бірқалыпты қозғалыс күйін сақтайды.\n\n2-заң: F = ma – күш масса мен үдеудің көбейтіндісіне тең.\n\n3-заң: F₁₂ = -F₂₁ – күштер тең және қарама-қарсы.",
+                formulas: ["F = m·a", "P = m·g (ауырлық күші)", "F_үйкеліс = μ·N"],
+                tasks: [{ q: "Массасы 5 кг денеге 20 Н күш әсер етсе, үдеуі неге тең?", ans: 4 }]
+            },
+            {
+                name: "Бүкіләлемдік тартылыс заңы",
+                theory: "Бүкіләлемдік тартылыс заңы: F = G·m₁·m₂ / r². G = 6,67·10⁻¹¹ Н·м²/кг².\n\nЖер бетінде: F = m·g, g = 9,8 м/с².\n\nБірінші ғарыштық жылдамдық: v₁ = √(g·R) ≈ 7,9 км/с.",
+                formulas: ["F = G·m₁·m₂ / r²", "G = 6,67 × 10⁻¹¹ Н·м²/кг²", "g = 9,8 м/с²", "v₁ = √(g·R)"],
+                tasks: [{ q: "Екі дененің массасын 2 есе арттырса, тартылыс күші неше есе өзгереді?", ans: 4 }]
+            }
+        ]
+    },
+    "Электр және магнетизм": {
+        topics: [
+            {
+                name: "Ом заңы",
+                theory: "Тізбек бөлігіне арналған Ом заңы: I = U/R. Ток күші кернеуге тура пропорционал, кедергіге кері пропорционал.\n\nКедергі: R = ρ·l/S. Қуат: P = U·I = I²·R = U²/R.\n\nТізбектей қосу: R = R₁ + R₂. Параллель қосу: 1/R = 1/R₁ + 1/R₂.",
+                formulas: ["I = U / R", "R = ρ·l / S", "P = U·I", "U = I·R"],
+                tasks: [{ q: "Кернеу 12 В, кедергі 4 Ом. Ток күші?", ans: 3 }]
+            },
+            {
+                name: "Магнит өрісі",
+                theory: "Ампер күші: F = B·I·l·sinα – магнит өрісіндегі токты өткізгішке әсер ететін күш.\n\nЛоренц күші: F_Л = q·v·B·sinα – магнит өрісінде қозғалатын зарядқа әсер ететін күш.\n\nСол қол ережесі күштің бағытын анықтайды.",
+                formulas: ["F = B·I·l·sinα", "F_Л = q·v·B·sinα", "Φ = B·S·cosα (магнит ағыны)"],
+                tasks: [{ q: "B=0.2 Тл, I=3 A, l=0.5 м, α=90°. Ампер күші (Н)?", ans: 0.3 }]
+            }
+        ]
+    },
+    "Оптика": {
+        topics: [
+            {
+                name: "Жарықтың шағылу және сынуы",
+                theory: "Шағылу заңы: түсу бұрышы шағылу бұрышына тең (α = β).\n\nСыну заңы (Снеллиус): sinα / sinγ = n₂ / n₁.\n\nАбсолют сыну көрсеткіші: n = c/v, мұндағы c = 3·10⁸ м/с (вакуумдегі жарық жылдамдығы).",
+                formulas: ["α = β (шағылу заңы)", "sinα / sinγ = n₂ / n₁", "n = c / v"],
+                tasks: [{ q: "Вакуумде c=3·10⁸, суда v=2.25·10⁸. Сыну көрсеткіші?", ans: 1.33 }]
+            },
+            {
+                name: "Линзалар",
+                theory: "Оптикалық күш: D = 1/F (дптр). Линза формуласы: 1/F = 1/d + 1/f.\n\nҮлкейту: Γ = f/d = H/h.\n\nЖинағыш линза (F>0), шашыратқыш линза (F<0).",
+                formulas: ["D = 1/F", "1/F = 1/d + 1/f", "Γ = f/d"],
+                tasks: [{ q: "Фокус аралығы 0.25 м. Оптикалық күш (дптр)?", ans: 4 }]
+            }
+        ]
+    },
+    "Термодинамика": {
+        topics: [
+            {
+                name: "Термодинамиканың 1-заңы",
+                theory: "Ішкі энергия – молекулалардың кинетикалық және потенциалдық энергиясының қосындысы. Идеал газ үшін: U = (3/2)·ν·R·T.\n\n1-заң: ΔU = Q - A. Газға берілген жылу ішкі энергияны арттыруға және жұмыс істеуге жұмсалады.\n\nГаз жұмысы: A = p·ΔV.",
+                formulas: ["ΔU = Q - A", "U = (3/2)·ν·R·T", "A = p·ΔV"],
+                tasks: [{ q: "Газға 200 Дж беріліп, 60 Дж жұмыс атқарса, ΔU неге тең?", ans: 140 }]
+            },
+            {
+                name: "Жылу мөлшері",
+                theory: "Қыздыруға қажет жылу: Q = m·c·ΔT.\n\nБалқу: Q = λ·m. Булану: Q = L·m. Жану: Q = q·m.\n\nМеншікті жылусыйымдылық (c), балқу жылуы (λ), булану жылуы (L) – зат тұрақтылары.",
+                formulas: ["Q = m·c·ΔT", "Q = λ·m", "Q = L·m", "Q = q·m"],
+                tasks: [{ q: "2 кг суды 30°C-қа қыздыру (c=4200 Дж/кг·°C). Q неге тең?", ans: 252000 }]
+            }
+        ]
+    }
+};
+
+// Барлық формулаларды жинау
+let allFormulasList = [];
+for (let mod in modulesData) {
+    for (let topic of modulesData[mod].topics) {
+        if (topic.formulas) {
+            for (let f of topic.formulas) {
+                allFormulasList.push({ module: mod, topic: topic.name, formula: f });
+            }
+        }
+    }
+}
+
+// ============ ПАЙДАЛАНУШЫЛАР ЖӘНЕ ПРОГРЕСС ============
+let users = JSON.parse(localStorage.getItem("physics_users")) || [];
+let currentUser = null;
+
+function saveUsers() {
+    localStorage.setItem("physics_users", JSON.stringify(users));
+}
+
+function isTopicCompleted(moduleName, topicName) {
+    if (!currentUser || !currentUser.progress) return false;
+    return currentUser.progress[moduleName] ? currentUser.progress[moduleName].includes(topicName) : false;
+}
+
+function setTopicCompleted(moduleName, topicName, completed) {
+    if (!currentUser) return;
+    if (!currentUser.progress) currentUser.progress = {};
+    if (!currentUser.progress[moduleName]) currentUser.progress[moduleName] = [];
+    
+    if (completed && !currentUser.progress[moduleName].includes(topicName)) {
+        currentUser.progress[moduleName].push(topicName);
+    } else if (!completed) {
+        currentUser.progress[moduleName] = currentUser.progress[moduleName].filter(t => t !== topicName);
+    }
+    
+    let idx = users.findIndex(u => u.username === currentUser.username);
+    if (idx !== -1) users[idx] = currentUser;
+    saveUsers();
+    renderModules();
+    updateGlobalProgress();
+}
+
+function modulePercent(moduleName) {
+    let topics = modulesData[moduleName].topics;
+    if (!topics.length) return 0;
+    let done = topics.filter(t => isTopicCompleted(moduleName, t.name)).length;
+    return Math.floor(done / topics.length * 100);
+}
+
+function globalPercent() {
+    let total = 0, done = 0;
+    for (let mod in modulesData) {
+        let topics = modulesData[mod].topics;
+        total += topics.length;
+        done += topics.filter(t => isTopicCompleted(mod, t.name)).length;
+    }
+    return total === 0 ? 0 : Math.floor(done / total * 100);
+}
+
+function updateGlobalProgress() {
+    let gp = globalPercent();
+    let fill = document.getElementById("globalFill");
+    let percentSpan = document.getElementById("globalPercent");
+    if (fill) fill.style.width = gp + "%";
+    if (percentSpan) percentSpan.innerText = gp + "%";
+}
+
+function renderModules() {
+    let container = document.getElementById("modulesAccordion");
+    if (!container) return;
+    let html = "";
+    
+    for (let modName in modulesData) {
+        let percent = modulePercent(modName);
+        let modId = modName.replace(/\s/g, '');
+        html += `<div class="mod-wrapper">
+            <div class="mod-header" data-mod="${modName}">
+                <span class="mod-name">📚 ${modName}</span>
+                <span class="mod-progress">${percent}%</span>
+            </div>
+            <div class="mod-content" id="modContent_${modId}">`;
+        
+        let topics = modulesData[modName].topics;
+        for (let i = 0; i < topics.length; i++) {
+            let topic = topics[i];
+            let completed = isTopicCompleted(modName, topic.name);
+            html += `<div class="topic-item">
+                <div class="topic-header" onclick="toggleDetail(this)">
+                    <span class="topic-title">📘 ${topic.name}</span>
+                    <input type="checkbox" class="complete-check" data-mod="${modName}" data-topic="${topic.name}" ${completed ? 'checked' : ''}>
+                </div>
+                <div class="topic-detail">
+                    <div class="theory-text">${topic.theory.replace(/\n/g, '<br>')}</div>
+                    <div><strong>📐 Формулалар:</strong>`;
+            if (topic.formulas) {
+                for (let f of topic.formulas) {
+                    html += `<div class="formula-bubble">📌 ${f}</div>`;
+                }
+            }
+            html += `</div><div><strong>✏️ Тапсырмалар:</strong>`;
+            if (topic.tasks) {
+                for (let t = 0; t < topic.tasks.length; t++) {
+                    html += `<div class="task-card">
+                        <p>${t+1}. ${topic.tasks[t].q}</p>
+                        <input type="text" class="task-input" data-mod="${modName}" data-topicidx="${i}" data-taskidx="${t}" placeholder="Жауабыңыз">
+                        <button class="task-btn" data-mod="${modName}" data-topicidx="${i}" data-taskidx="${t}" data-answer="${topic.tasks[t].ans}">Тексеру</button>
+                        <div class="task-feedback" id="fb_${modName}_${i}_${t}"></div>
+                    </div>`;
+                }
+            }
+            html += `</div></div></div>`;
+        }
+        html += `</div></div>`;
+    }
+    container.innerHTML = html;
+    
+    // Аккордеон оқиғалары
+    document.querySelectorAll(".mod-header").forEach(header => {
+        header.addEventListener("click", function(e) {
+            let mod = this.getAttribute("data-mod");
+            let content = document.getElementById(`modContent_${mod.replace(/\s/g, '')}`);
+            if (content) content.classList.toggle("show");
+            this.classList.toggle("active");
+        });
+    });
+    
+    // Чекбокс оқиғалары
+    document.querySelectorAll(".complete-check").forEach(cb => {
+        cb.addEventListener("change", function(e) {
+            e.stopPropagation();
+            let mod = this.getAttribute("data-mod");
+            let topic = this.getAttribute("data-topic");
+            setTopicCompleted(mod, topic, this.checked);
+        });
+    });
+    
+    // Тапсырма батырмалары
+    document.querySelectorAll(".task-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            let mod = this.getAttribute("data-mod");
+            let topicIdx = this.getAttribute("data-topicidx");
+            let taskIdx = this.getAttribute("data-taskidx");
+            let answer = this.getAttribute("data-answer");
+            let input = document.querySelector(`.task-input[data-mod="${mod}"][data-topicidx="${topicIdx}"][data-taskidx="${taskIdx}"]`);
+            let fb = document.getElementById(`fb_${mod}_${topicIdx}_${taskIdx}`);
+            if (!input || !fb) return;
+            let userVal = input.value.trim().toLowerCase();
+            let isCorrect = false;
+            if (!isNaN(answer) && !isNaN(userVal)) {
+                isCorrect = Math.abs(parseFloat(userVal) - parseFloat(answer)) < 0.01;
+            } else {
+                isCorrect = userVal === answer.toString().toLowerCase();
+            }
+            fb.innerHTML = isCorrect ? "✅ Дұрыс! Жарайсың!" : `❌ Қате. Дұрыс жауап: ${answer}`;
+            fb.style.color = isCorrect ? "#15803d" : "#dc2626";
+        });
+    });
+}
+
+function renderFormulas() {
+    let container = document.getElementById("allFormulasGrid");
+    if (!container) return;
+    let html = "";
+    for (let f of allFormulasList) {
+        html += `<div class="formula-mini"><strong>${f.module} / ${f.topic}</strong><br>📌 ${f.formula}</div>`;
+    }
+    container.innerHTML = html;
+}
+
+function initCalc() {
+    let btn = document.getElementById("calcBtn");
+    let input = document.getElementById("calcInput");
+    let result = document.getElementById("calcResult");
+    if (btn) {
+        btn.onclick = function() {
+            try {
+                let res = eval(input.value);
+                result.innerHTML = "= " + res;
+            } catch(e) {
+                result.innerHTML = "Қате өрнек";
+            }
+        };
+    }
+}
+
+window.toggleDetail = function(el) {
+    let detail = el.nextElementSibling;
+    if (detail) detail.classList.toggle("open");
+};
+
+// ============ АУТЕНТИФИКАЦИЯ ============
+let isLogin = true;
+
+function startApp() {
+    document.getElementById("authModal").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+    document.getElementById("currentUser").innerText = currentUser.username;
+    renderModules();
+    renderFormulas();
+    updateGlobalProgress();
+    initCalc();
+}
+
+function setupAuth() {
+    let switchBtn = document.getElementById("switchToRegister");
+    let submitBtn = document.getElementById("authSubmitBtn");
+    let title = document.getElementById("authTitle");
+    let msg = document.getElementById("authMsg");
+    
+    switchBtn.onclick = function() {
+        isLogin = !isLogin;
+        title.innerText = isLogin ? "🔐 Кіру" : "📝 Тіркелу";
+        switchBtn.innerHTML = isLogin ? 'Аккаунтыңыз жоқ па? <span>Тіркелу</span>' : 'Аккаунтыңыз бар ма? <span>Кіру</span>';
+        msg.innerText = "";
+    };
+    
+    submitBtn.onclick = function() {
+        let username = document.getElementById("authUsername").value.trim();
+        let password = document.getElementById("authPassword").value.trim();
+        
+        if (!username || !password) {
+            msg.innerText = "Логин және құпиясөзді толтырыңыз!";
+            return;
+        }
+        
+        if (isLogin) {
+            let user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem("physics_currentUser", JSON.stringify({ username: user.username, password: user.password }));
+                startApp();
+            } else {
+                msg.innerText = "Қате логин немесе құпиясөз!";
+            }
+        } else {
+            if (users.find(u => u.username === username)) {
+                msg.innerText = "Бұл пайдаланушы аты бар! Басқа ат таңдаңыз.";
+                return;
+            }
+            let newUser = { username: username, password: password, progress: {} };
+            users.push(newUser);
+            saveUsers();
+            currentUser = newUser;
+            localStorage.setItem("physics_currentUser", JSON.stringify({ username: newUser.username, password: newUser.password }));
+            startApp();
+        }
+    };
+    
+    let logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.onclick = function() {
+            localStorage.removeItem("physics_currentUser");
+            currentUser = null;
+            document.getElementById("mainApp").style.display = "none";
+            document.getElementById("authModal").style.display = "flex";
+            document.getElementById("authUsername").value = "";
+            document.getElementById("authPassword").value = "";
+            isLogin = true;
+            document.getElementById("authTitle").innerText = "🔐 Кіру";
+            document.getElementById("switchToRegister").innerHTML = 'Аккаунтыңыз жоқ па? <span>Тіркелу</span>';
+        };
+    }
+}
+
+// Бастапқы жүктеу
+let saved = localStorage.getItem("physics_currentUser");
+if (saved) {
+    try {
+        let savedUser = JSON.parse(saved);
+        let found = users.find(u => u.username === savedUser.username && u.password === savedUser.password);
+        if (found) {
+            currentUser = found;
+            startApp();
+        } else {
+            document.getElementById("authModal").style.display = "flex";
+            document.getElementById("mainApp").style.display = "none";
+        }
+    } catch(e) {
+        document.getElementById("authModal").style.display = "flex";
+        document.getElementById("mainApp").style.display = "none";
+    }
+} else {
+    document.getElementById("authModal").style.display = "flex";
+    document.getElementById("mainApp").style.display = "none";
+}
+
+setupAuth();
+</script>
+</body>
+</html>
